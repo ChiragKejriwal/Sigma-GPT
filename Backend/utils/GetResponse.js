@@ -1,22 +1,33 @@
-import 'dotenv/config';
-import { GoogleGenAI } from '@google/genai';
+const { GoogleGenAI } = require('@google/genai');
+const dotenv = require('dotenv');
+dotenv.config();
 
 const getApiResponse = async (message) => {
-    const ai = new GoogleGenAI({
-        apiKey: process.env.GEMINI_API_KEY,
-    });
+    const apiKey = process.env.GEMINI_API_KEY;
+
+    if (!apiKey) {
+        throw new Error('GEMINI_API_KEY is missing in backend environment');
+    }
+
+    const ai = new GoogleGenAI({ apiKey });
+
     try {
         const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash",
+            model: 'gemini-2.5-flash',
             contents: message,
         });
-        const data = response.text;
-        console.log('Generated content:', data);
+
+        const data = response?.text;
+
+        if (!data || typeof data !== 'string') {
+            throw new Error('Empty response from Gemini API');
+        }
+
         return data;
-
     } catch (error) {
-        console.error('Error generating content:', error);
+        const apiMessage = error?.message || 'Unknown Gemini API error';
+        throw new Error(`Gemini generation failed: ${apiMessage}`);
     }
-}
+};
 
-export default getApiResponse;
+module.exports = getApiResponse;

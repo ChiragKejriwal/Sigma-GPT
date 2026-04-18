@@ -1,14 +1,22 @@
-import express from 'express';
-import cors from 'cors';
-import 'dotenv/config';
-import mongoose from 'mongoose';
-import chatRoutes from './routes/chat.js';
+require('dotenv').config();
+const express = require('express');
+const cors = require('cors');
+const mongoose = require('mongoose');
+const authRouter = require('./routes/auth.routes');
+const chatRouter = require('./routes/chat.routes');
+const cookieParser = require('cookie-parser');
 const app = express();
+require('dotenv').config();
 
-app.use(cors());
+app.use(cors({
+    origin: 'http://localhost:5173',
+    credentials: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use('/api', chatRoutes);
+app.use(cookieParser());
+app.use('/api/auth', authRouter);
+app.use('/api/chat', chatRouter);
 
 const connectDb=async()=>{
     try{

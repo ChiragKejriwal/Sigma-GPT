@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+const mongoose = require('mongoose');
 
 const MessageSchema = new mongoose.Schema({
     role:{
@@ -22,6 +22,10 @@ const ThreadSchema = new mongoose.Schema({
         required:true,
         unique:true
     },
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "users"
+    },
     title:{
         type:String,
         required:true,
@@ -38,4 +42,4 @@ const ThreadSchema = new mongoose.Schema({
     }
 });
 
-export default mongoose.model("Thread",ThreadSchema);
+module.exports = mongoose.model("Thread",ThreadSchema);
