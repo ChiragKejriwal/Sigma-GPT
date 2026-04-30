@@ -1,22 +1,39 @@
-.chats {
-  width: 700px;
+.chatStatus {
+  width: min(100%, 980px);
   margin: 0 auto;
-  padding: 24px 0;
+  padding: 24px clamp(16px, 4vw, 32px) 0;
+}
+
+.chatStatus h1 {
+  margin: 0;
+  font-size: clamp(1.5rem, 2vw, 2.25rem);
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.chats {
+  width: min(100%, 980px);
+  margin: 0 auto;
+  padding: 24px clamp(16px, 4vw, 32px);
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 18px;
   flex: 1;
   min-height: 0;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.7) transparent;
 }
 
 .chats::-webkit-scrollbar {
-  width: 6px;
+  width: 10px;
 }
 
 .chats::-webkit-scrollbar-thumb {
-  background-color: #3a3a3a;
-  border-radius: 10px;
+  background-color: rgba(148, 163, 184, 0.7);
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: content-box;
 }
 
 .chats::-webkit-scrollbar-track {
@@ -38,9 +55,10 @@
   background-color: var(--user-message-bg);
   padding: 10px 20px;
   border-radius: 14px;
-  margin-left: 15rem;
-  max-width: 500px;
+  margin-left: auto;
+  max-width: min(680px, 100%);
   width: fit-content;
+  overflow-wrap: anywhere;
 }
 
 .hljs {

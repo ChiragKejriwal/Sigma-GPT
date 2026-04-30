@@ -6,7 +6,7 @@ import '../auth.form.css';
 const Register = () => {
 
     const navigate = useNavigate()
-    const {loading,user,handleRegister} = useAuth()
+    const {loading,user,handleRegister,authError,setAuthError} = useAuth()
     const [username,setUsername] = useState("")
     const [email,setEmail] = useState("")
     const [password,setPassword] = useState("")
@@ -22,50 +22,50 @@ const Register = () => {
     const handleSubmit = async (e) => {
         e.preventDefault()
         setError('')
-        try {
-            await handleRegister({username,email,password})
+        setAuthError('')
+        const result = await handleRegister({username,email,password})
+        if (result?.success) {
             navigate("/")
-        } catch (err) {
-            setError(err.message || 'Registration failed')
+        } else {
+            setError(result?.message || authError || 'Registration failed')
         }
-    }
-
-    if(loading) {
-        return (
-           <main className='auth-page'>
-                <h1>Loading...</h1>
-           </main>
-        )
     }
 
     return (
         <main className='auth-page'>
             <div className="form-container">
                 <h1>Register</h1>
-                {error && <p className="auth-error">{error}</p>}
+                {(error || authError) && (
+                    <p className="auth-error" role="alert" aria-live="polite">
+                        <i className="fa-solid fa-circle-exclamation"></i>
+                        <span>{error || authError}</span>
+                    </p>
+                )}
 
                 <form onSubmit={handleSubmit}>
 
                     <div className="input-group">
                         <label htmlFor="username">Username</label>
                         <input 
-                        onChange={(e) => { setUsername(e.target.value) }}
+                        onChange={(e) => { setUsername(e.target.value); setError(''); setAuthError(''); }}
                         type="text" id="username" name='username' placeholder='Enter username' />
                     </div>
                     <div className="input-group">
                         <label htmlFor="email">Email</label>
                         <input
-                            onChange={(e) => { setEmail(e.target.value) }}
+                            onChange={(e) => { setEmail(e.target.value); setError(''); setAuthError(''); }}
                             type="email" id="email" name='email' placeholder='Enter email address' />
                     </div>
                     <div className="input-group">
                         <label htmlFor="password">Password</label>
                         <input
-                            onChange={(e) => { setPassword(e.target.value) }}
+                            onChange={(e) => { setPassword(e.target.value); setError(''); setAuthError(''); }}
                             type="password" id="password" name='password' placeholder='Enter password' />
                     </div>
 
-                    <button className='button primary-button' >Register</button>
+                    <button className='button primary-button' disabled={loading}>
+                        {loading ? 'Creating account...' : 'Register'}
+                    </button>
 
                 </form>
 

@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv').config({ override: true });
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
@@ -6,7 +6,6 @@ const authRouter = require('./routes/auth.routes');
 const chatRouter = require('./routes/chat.routes');
 const cookieParser = require('cookie-parser');
 const app = express();
-require('dotenv').config();
 
 app.use(cors({
     origin: 'http://localhost:5173',

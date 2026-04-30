@@ -1,6 +1,7 @@
-const { GoogleGenAI } = require('@google/genai');
 const dotenv = require('dotenv');
-dotenv.config();
+dotenv.config({ override: true });
+const { GoogleGenAI } = require('@google/genai');
+
 
 const getApiResponse = async (message) => {
     const apiKey = process.env.GEMINI_API_KEY;
@@ -9,7 +10,7 @@ const getApiResponse = async (message) => {
         throw new Error('GEMINI_API_KEY is missing in backend environment');
     }
 
-    const ai = new GoogleGenAI({ apiKey });
+    const ai = new GoogleGenAI({ apiKey: apiKey });
 
     try {
         const response = await ai.models.generateContent({

@@ -34,4 +34,21 @@ authRouter.get('/logout', authController.logoutUser);
 
 authRouter.get('/get-me', authMiddleware.authUser, authController.getMe);
 
+/**
+ * @route PUT /api/auth/profile
+ * @desc Update user profile
+ * @access Private
+ */
+authRouter.put('/profile', authMiddleware.authUser, authController.updateProfile);
+
+/**
+ * @route DELETE /api/auth/profile
+ * @desc Delete user account
+ * @access Private
+ */
+
+authRouter.delete('/profile', authMiddleware.authUser, authController.deleteAccount);
+
+
+
 module.exports = authRouter;

@@ -122,11 +122,63 @@ async function getMe(req, res){
         }
     });
 }
-    
+
+async function updateProfile(req, res) {
+    try {
+        const { username, email, password } = req.body;
+        const user = await userModel.findById(req.user.id);
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        if (username) user.username = username;
+        if (email) user.email = email;
+        if (password && password.trim() !== '') {
+            user.password = await bcrypt.hash(password, 10);
+        }
+
+        await user.save();
+
+        res.status(200).json({
+            message: 'Profile updated successfully',
+            user: {
+                id: user._id,
+                username: user.username,
+                email: user.email,
+            }
+        });
+    } catch (error) {
+        if (error?.code === 11000) {
+            return res.status(400).json({ message: 'Username or email already exists' });
+        }
+
+        console.error('Error updating profile:', error);
+        res.status(500).json({ message: 'Update failed' });
+    }
+}
+
+async function deleteAccount(req, res) {
+    try {
+        const user = await userModel.findByIdAndDelete(req.user.id);
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.clearCookie('token', cookieOptions);
+        res.status(200).json({ message: 'Account deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting account:', error);
+        res.status(500).json({ message: 'Deletion failed' });
+    }
+}
 
 module.exports = {
     registerUser,
     loginUser,
     logoutUser,
-    getMe
+    getMe,
+    updateProfile,
+    deleteAccount
 }

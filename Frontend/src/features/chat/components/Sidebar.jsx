@@ -1,11 +1,19 @@
 import '../style/sidebar.css';
 import { v1 as uuidv1 } from 'uuid';
 import blackLogo from '../../../assets/blacklogo.png';
+import whiteLogo from '../../../assets/whitelogo.png';
 import { useChat } from '../hooks/useChat';
 import { fetchThreadMessages, fetchThreads, removeThread } from '../services/chat.api.js';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function Sidebar() {
+  const [
+    isSidebarOpen,
+    setIsSidebarOpen,
+  ] = useState(true);
+  const [isSearchActive, setIsSearchActive] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
   const {
     allThreads,
     setAllThreads,
@@ -15,7 +23,14 @@ export default function Sidebar() {
     setReply,
     setCurrThreadId,
     setPrevChats,
+    theme,
   } = useChat();
+
+  const logoSrc = theme === 'light' ? whiteLogo : blackLogo;
+  
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
 
   const getAllThreads = async () => {
     try {
@@ -64,17 +79,83 @@ export default function Sidebar() {
     }
   };
 
+  const toggleSearch = () => {
+    setIsSearchActive(!isSearchActive);
+    setSearchQuery('');
+  };
+
+  const closeSearch = () => {
+    setIsSearchActive(false);
+    setSearchQuery('');
+  };
+
+  // Filter threads based on search query
+  const filteredThreads = isSearchActive 
+    ? allThreads.filter(thread => 
+        thread.title.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : allThreads;
+
+  const displayThreads = isSearchActive ? filteredThreads : allThreads;
+
   return (
-    <section className="sidebar">
-      <button onClick={createNewChat}>
-        <img className="logo" src={blackLogo} alt="SigmaGPT" />
-        <span>
-          <i className="fa-solid fa-pen-to-square"></i>
-        </span>
-      </button>
+    <section className={`sidebar ${isSidebarOpen ? 'open' : 'closed'}`}>
+      <div className="sidebar-header">
+        <img 
+          className="logo" 
+          src={logoSrc} 
+          alt="SigmaGPT"
+          onClick={!isSidebarOpen ? toggleSidebar : undefined}
+          style={{ cursor: !isSidebarOpen ? 'pointer' : 'default' }}
+        />
+        {isSidebarOpen && (
+          <button className="toggle-btn" onClick={toggleSidebar}>
+            <i className="fa-solid fa-bars"></i>
+          </button>
+        )}
+      </div>
+
+      <div className="menu-section">
+        <button className="menu-item new-chat-btn" onClick={createNewChat}>
+          <i className="fa-regular fa-pen-to-square"></i>
+          {isSidebarOpen && <span>New chat</span>}
+        </button>
+        <button className="menu-item search-btn" onClick={toggleSearch}>
+          <i className="fa-solid fa-magnifying-glass"></i>
+          {isSidebarOpen && <span>Search chats</span>}
+        </button>
+        <button className="menu-item more-btn" disabled>
+          <i className="fa-solid fa-ellipsis"></i>
+          {isSidebarOpen && <span>More</span>}
+        </button>
+      </div>
+
+      {isSidebarOpen && isSearchActive && (
+        <div className="search-box-container">
+          <div className="search-input-wrapper">
+            <input
+              type="text"
+              placeholder="Search chats"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              autoFocus
+              className="search-input"
+            />
+            <button 
+              className="search-close-btn"
+              onClick={closeSearch}
+              aria-label="Close search"
+            >
+              <i className="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {isSidebarOpen && <div className="recents-header">Recents</div>}
 
       <ul className="history">
-        {allThreads?.map((thread, idx) => (
+        {displayThreads?.map((thread, idx) => (
           <li
             key={idx}
             onClick={() => changeThread(thread.threadId)}
@@ -92,9 +173,16 @@ export default function Sidebar() {
         ))}
       </ul>
 
-      <div className="sign">
-        <p>Made By Chirag ❤️</p>
-      </div>
+      {isSidebarOpen && (
+        <div className="sign">
+          <p>Made By Chirag ❤️</p>
+        </div>
+      )}
+      {!isSidebarOpen && (
+        <div className="user-icon-closed">
+          <div className="icon-circle">C</div>
+        </div>
+      )}
     </section>
   );
 }

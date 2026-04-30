@@ -6,7 +6,7 @@ import { useAuth } from '../hooks/useAuth';
 
 const Login = () => {
     const navigate = useNavigate();
-    const {loading, user, handleLogin} = useAuth();
+    const {loading, user, handleLogin, authError, setAuthError} = useAuth();
 
     const [ email, setEmail ] = useState("");
     const [ password, setPassword ] = useState("");
@@ -20,40 +20,44 @@ const Login = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError("");
-        try {
-            await handleLogin({email,password});
+        setError('');
+        setAuthError('');
+        const result = await handleLogin({email,password});
+        if (result?.success) {
             navigate("/");
-        } catch (err) {
-            setError(err.message || 'Login failed');
+        } else {
+            setError(result?.message || authError || 'Login failed');
         }
-    }
-
-    if(loading){
-        return (<main className='auth-page'><h1>Loading.......</h1></main>)
     }
 
     return (
         <main className='auth-page'>
             <div className="form-container">
                 <h1>Login</h1>
-                {error && <p className="auth-error">{error}</p>}
+                {(error || authError) && (
+                    <p className="auth-error" role="alert" aria-live="polite">
+                        <i className="fa-solid fa-circle-exclamation"></i>
+                        <span>{error || authError}</span>
+                    </p>
+                )}
 
                 <form onSubmit={handleSubmit}>
                     <div className="input-group">
                         <label htmlFor="email">Email</label>
                         <input 
-                        onChange={(e)=>{setEmail(e.target.value)}}
+                        onChange={(e)=>{setEmail(e.target.value); setError(''); setAuthError('');}}
                         type="email" id="email" name="email" placeholder='Enter Email address'/>
                     </div>
                     <div className="input-group">
                         <label htmlFor="password">Password</label>
                         <input 
-                        onChange={(e)=>{setPassword(e.target.value)}}
+                        onChange={(e)=>{setPassword(e.target.value); setError(''); setAuthError('');}}
                         type="password" id="password" name="password" placeholder='Enter Password'/>
                     </div>
 
-                    <button className='button primary-button'>Login</button>
+                    <button className='button primary-button' disabled={loading}>
+                        {loading ? 'Logging in...' : 'Login'}
+                    </button>
                 </form>
 
                 <p>Don't have an account? <Link to={"/register"} >Register</Link> </p>

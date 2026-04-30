@@ -13,7 +13,7 @@ export async function register({username,email,password}){
 
         return response.data;
     } catch (error) {
-        console.error("Registration failed:", error);
+        throw error;
     }
 };  
 
@@ -24,7 +24,7 @@ export async function login({email,password}){
         );
         return response.data;
     } catch (error) {
-        console.error("Login failed:", error);
+        throw error;
     }
 };
 
@@ -33,7 +33,7 @@ export async function logout(){
         const response = await api.get('/api/auth/logout');
         return response.data;
     } catch (error) {
-        console.error("Logout failed:", error);
+        throw error;
     }   
 };
 
@@ -42,6 +42,32 @@ export async function getMe(){
         const response = await api.get('/api/auth/get-me');
         return response.data;
     } catch (error) {
-        console.error("Failed to fetch user data:", error);
+        if (error?.response?.status !== 401) {
+            console.error('Failed to fetch user data:', error);
+        }
+        return null;
+    }
+};
+
+export async function updateProfile({ username, email, password }) {
+    try {
+        const response = await api.put('/api/auth/profile', {
+            username,
+            email,
+            password,
+        });
+
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};
+
+export async function deleteAccount() {
+    try {
+        const response = await api.delete('/api/auth/profile');
+        return response.data;
+    } catch (error) {
+        throw error;
     }
 };
